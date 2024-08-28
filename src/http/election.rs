@@ -70,7 +70,6 @@ pub(crate) async fn election(
 
     let votes = sqlx::query_as!(Preference, "select vote, candidate, preference from vote_preferences join vote on vote_preferences.vote = vote.id where election = $1;", election_id).fetch_all(&mut *tx).await?;
 
-    // compute Condorcet winner
 
     let mut voters = BTreeMap::<_, Voter>::new();
     let mut vote_candidates = HashSet::new();
@@ -154,6 +153,8 @@ pub(crate) async fn election(
             }
         }
     }
+
+    // compute Condorcet winner
 
     let mut condorcet_tally = vec![0.0; candidates.len()];
     let mut condorcet_winner = None;
