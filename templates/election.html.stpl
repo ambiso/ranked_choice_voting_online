@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Voting: <%= title %></title>
+    <style>
+
+/* List */
+table.errorlist .counter{
+  text-align: right;
+}
+table.errorlist .counter span{
+  background-color: #eee;
+  border-radius: 2px;
+  padding: 1px 5px;
+}
+/* Summaries*/
+table.summaries td{
+  padding-right: 40px;
+}
+table.summaries td.critical{
+  color: #e6614f;
+}
+table.summaries div.value{
+  font-size: 40px;
+  margin-top: 10px;
+}
+/* Bar Chart */
+.barchart{
+  font-size: 9px;
+  line-height: 15px;
+    table-layout: fixed;
+    text-align:center; 
+    width: 100%;
+    height:226px;
+}
+.barchart tr:nth-child(1) td{
+    vertical-align:bottom;
+    height:200px;
+  }
+  
+.barchart .bar{
+    background: #0DA58E;
+    padding: 10px 2px 0;
+}
+  
+.barchart .label{
+    background-color: black;
+  margin-top: -30px;
+  padding: 0 3px;
+  color: white;
+  border-radius: 4px;
+}
+    </style>
+  </head>
+  <body>
+    <h1>Voting: <%= title %></h1>
+
+    <h2>The current winners are:</h2>
+    <h3><%= condorcet_winner %> (Condorcet)</h3>
+
+<details>
+  <summary>Click to show Condorcet tally</summary>
+
+  <div class="minwidth">
+  <table class="barchart" cellpadding="1" cellspacing="0">
+    <tr>
+    <% for percentage in condorcet_tally.iter() { %>
+      <td>
+        <span class="label"><%= format!("{percentage:.02}%") %></span>
+        <div class="bar" style="height:<%= percentage %>%"></div>
+      </td>
+    <% } %>
+    </tr>
+    <tr>
+    <% for candidate in candidates.iter() { %>
+      <td><%= candidate.username %></td>
+    <% } %>
+    </tr>
+  </table>    
+  </div>
+</details>
+
+    <h3><%= instant_runoff %> (Instant runoff)</h3>
+
+<details>
+  <summary>Click to show instant runoff rounds</summary>
+
+<% for (round, tally) in instant_runoff_tallies.iter().enumerate() { %>
+<p>Round #<%= round + 1 %>:</p>
+  <div class="minwidth">
+  <table class="barchart" cellpadding="1" cellspacing="0">
+    <tr>
+    <% for percentage in tally.iter() { %>
+      <td>
+        <span class="label"><%= format!("{percentage:.02}%") %></span>
+        <div class="bar" style="height:<%= percentage %>%"></div>
+      </td>
+    <% } %>
+    </tr>
+    <tr>
+    <% for candidate in candidates.iter() { %>
+      <td><%= candidate.username %></td>
+    <% } %>
+    </tr>
+  </table>    
+  </div>
+<% } %>
+</details>
+
+
+    <h2>Candidates:</h2>
+    <ul>
+    <% for candidate in candidates.iter() { %>
+      <li><%= candidate.username %></li>
+    <% } %>
+    </ul>
+    <form action="/election/<%= election_id %>/add_candidate" method="post">
+      <label for="title">Name:</label>
+      <input type="text" name="username" />
+      <input type="submit" value="Add Candidate" />
+    </form>
+
+    <h2>Add your vote:</h2>
+    <form action="/election/<%= election_id %>/vote" method="post">
+      <% for (i, candidate) in candidates.iter().enumerate() { %>
+        <div>
+          <span>Rank #<%= i + 1%>: </span>
+          <select name="opt<%= i %>" />
+            <% for candidate in candidates.iter() { %>
+              <option value="<%= candidate.id %>"><%= candidate.username %></option>
+            <% } %>
+            <option value="" selected>(Nobody)</option>
+          </select>
+        </div>
+      <% } %>
+      <input type="submit" value="Vote!" />
+    </form>
+
+    <h2>All votes:</h2>
+    <table>
+      <tr>
+        <th>ID</td>
+        <th>Prefs</td>
+      </tr>
+      <% for (i, voter) in voters.values().enumerate() { %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <% for candidate in voter.preferences.iter() { %> 
+            <td>
+              <%= candidates_map[&candidate.unwrap()] %> 
+            </td>
+          <% } %>
+        </tr>
+      <% } %>
+    </table>
+  </body>
+</html>

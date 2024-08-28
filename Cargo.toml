@@ -1,0 +1,20 @@
+[package]
+name = "ranked_choice_voting_online"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.86"
+axum = "0.7.5"
+clap = { version = "4.5.16", features = ["derive", "env"] }
+dotenv = "0.15.0"
+env_logger = "0.11.5"
+rand = "0.8.5"
+sailfish = "0.9.0"
+serde = { version = "1.0.209", features = ["derive"] }
+sqlx = { version = "0.8.1", features = ["postgres", "runtime-tokio", "uuid"] }
+thiserror = "1.0.63"
+tokio = { version = "1.39.3", features = ["full"] }
+tracing = "0.1.40"
+uuid = { version = "1.10.0", features = ["serde", "v4"] }
+
